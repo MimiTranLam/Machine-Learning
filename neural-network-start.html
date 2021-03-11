@@ -16,17 +16,27 @@
   <body>
     <script>
 
-/* Use this code to start going through the tutorial at https://youtu.be/8HEgeAbYphA beginning at 9:00.
-
+/* 
+Use this code to start going through the tutorial at https://youtu.be/8HEgeAbYphA beginning at 9:00.
 */
+      
 let model;
 let targetLabel = 'C';
 let state = 'collection'
 // let trainingData = [];
 
+/*
+targetLabel = C tells the code to display the C key as default for the first (when the code is run and there have not yet been any inputs yet logged) mouse clicks on the canvas.
+// collection state is when the neural network collects data by recording inputs (coordinates of mouse clicks: x, y).
+*/
+
 function setup() {
         createCanvas(400, 400);
 
+/*
+makes a canvas for data collection
+*/
+  
 let options = {
   inputs: ['x' , 'y'],
   outputs: ['label'],
@@ -37,6 +47,11 @@ model = ml5.neuralNetwork(options);
         background(230);
 }
 
+/*
+inputs are the coordinates of where the mouse is clicked on the canvas
+outputs are the keys to be 
+*/ 
+      
 function keyPressed(){
   if (key == 't'){
     state = 'training',
@@ -51,14 +66,32 @@ function keyPressed(){
   }
 }
 
+/*
+if the key pressed on the keyboard is t, the neural network goes into training mode and lets the data logger know that training has started and has it collect data.
+data collected is "normalized" to ignore anomalies and result in more accurate predictions. 
+the neural network is told to go through 200 cycles of the entire data set to train.
+if the key pressed is not t, it is used as data for training and is displayed as an upper case letter.
+*/
+      
 function whileTraining(epoch, loss){
   console.log(epoch);
 }
+      
+/*
+on a graph the neural network will collect epoch on x axis and loss on y axis.
+epoch counts the number of cycles the neural network goes through the dataset in training.
+loss calculates the errors made by the neural network during training.
+*/
 
 function finishedTraining(){
   console.log('finished training.');
   state = 'prediction'
 }
+      
+/*
+when training is finished the neural network stops cycling through the data and enters into a "prediction" state.
+prediction state puts data collected in training to use. Wherever the mouse is clicked on the canvas the neural network will mark the mosue click in terms of which key territory it belongs to (nearest key).
+*/   
 
 function mousePressed(){
 
@@ -82,7 +115,19 @@ textAlign(CENTER,CENTER);
 text(targetLabel, mouseX, mouseY);
 } else if(state == 'prediction'){
   console.log(model.classify(inputs))
+  model.classify(inputs, gotResults);
 }
+  
+/*
+when the mouse is clicked/pressed the inputs are generated logging the coordinates (on the canvas) of the the point of mouseclick as x and y.
+
+if the code is in the collection state (starting state) the targetLabel is made the label for marking mouse clicks. Target labels decided by the user (what key they click) is saved as data.
+
+stroke(0) to textAlign(CENTER,CENTER) sets how mouse clicks will be marked/displayed.
+text(targetLabel, mouseX, mouseY) determines what key will be displayed by the coordinates of the mouse click.
+
+if the code is in the prediction state the task will not be collection of data but classification of data. This state tells the trained neural network to classify new input coordinates of mouse clicks to a targetLabel.
+*/ 
 
 }
 
@@ -100,6 +145,12 @@ function gotResults(error, results){
   textAlign(CENTER,CENTER);
   text(results[0].label, mouseX, mouseY);
 }
+
+/*
+after training...
+if the neural network makes a mistake (output key given doesn't match targetLabel) it will be noted as an error.
+the neural network will use training data results to classify new mouse click coordinates into a label. Now the marking of the mouse click will be displayed as a blue colour to differentiate from training data.
+*/
 
     </script>
   </body>
